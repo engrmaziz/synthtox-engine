@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynthTox | Adverse Interaction Engine</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            margin-top: 0;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        button {
+            width: 100%;
+            background-color: #10b981;
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0ea5e9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+    <h2>Scan Medications</h2>
+    <p style="color: #888; font-size: 14px; margin-bottom: 20px;">List your active ingredients separated by commas.</p>
+    
+    <textarea id="drugInput" rows="3" placeholder="e.g., Lisinopril, Ibuprofen"></textarea>
+    <button onclick="checkInteractions()">Analyze Payload</button>
+    
+    <div id="result"></div>
+</div>
+
+<script>
+    async function checkInteractions() {
+        const input = document.getElementById('drugInput').value;
+        const resultDiv = document.getElementById('result');
+        const button = document.querySelector('button');
+        
+        if (!input) return;
+
+        button.innerText = "Analyzing Context...";
+        resultDiv.style.display = "none";
+
+        const drugsArray = input.split(',').map(d => d.trim());
+
+        try {
+            // Replace with your actual deployed Worker URL later
+            const response = await fetch('http://127.0.0.1:8787', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ drugs: drugsArray })
+            });
+
+            const data = await response.json();
+            
+            resultDiv.style.display = "block";
+            resultDiv.innerText = data.warning;
+            resultDiv.style.background = data.warning.includes("SEVERE") ? "rgba(239, 68, 68, 0.2)" : "rgba(16, 185, 129, 0.2)";
+            resultDiv.style.border = data.warning.includes("SEVERE") ? "1px solid #ef4444" : "1px solid #10b981";
+
+        } catch (error) {
+            resultDiv.style.display = "block";
+            resultDiv.innerText = "Connection error to Edge node.";
+            resultDiv.style.background = "rgba(239, 68, 68, 0.2)";
+        }
+
+        button.innerText = "Analyze Payload";
+    }
+</script>
+
+</body>
+</html>

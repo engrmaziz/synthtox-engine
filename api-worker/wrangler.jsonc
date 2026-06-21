@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "api-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-21",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": "./public"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "synthtox-db",
+      "database_id": "fa4db271-1875-4803-8790-a5049adc0cbf",
+      "remote": true
+    }
+  ],
+
+  "vectorize": [
+    {
+      "binding": "VECTORIZE_INDEX",
+      "index_name": "synthtox-vectors",
+      "remote": true
+    }
+  ],
+
+  "ai": {
+    "binding": "AI"
+  }
+}
